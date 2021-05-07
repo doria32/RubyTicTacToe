@@ -2,17 +2,11 @@ SEPARATOR = "-------------"
 COLSEP = "|"
 
 class Cell
-    attr_accessor :number
-    attr_accessor :indexI
-    attr_accessor :indexJ
+    attr_accessor :number , :indexI, :indexJ
     def initialize(number, indexI, indexJ)
         @number = number
         @indexI = indexI
         @indexJ = indexJ
-    end
-    
-    def return_position()
-        [@indexI, @indexJ]
     end
 end
 
@@ -100,6 +94,7 @@ class Match
         symbol = "O"
         welcome()
         while ((winner == false) && (boardfull == false))
+            valid_input = false
             if playerTurn % 2 == 0
                 symbol = "O"
                 puts "it's player1's turn with symbol O"
@@ -109,10 +104,19 @@ class Match
             end
             puts ""
             print_board(boardarray)
-            puts "Please enter the number corresponding to the cell where you want to place your #{symbol}"
-            choice = gets.chomp
-            classChoice = change_symbol(choice, boardarray,symbol)
+            while valid_input == false 
+                puts "Please enter the number corresponding to the cell where you want to place your #{symbol}"
+                choice = gets.chomp
+                returnedValues = change_symbol(choice, boardarray, symbol, valid_input)
+                classChoice = returnedValues[1]
+                valid_input = returnedValues[0]
+            end
             winner = check_winner(boardarray, classChoice)
+            if winner == true
+                print_board(boardarray)
+                puts ""
+                puts "Congratulations #{symbol} won the match!!!"
+            end
             boardfull = check_fullBoard(boardarray)
             playerTurn += 1
         end
@@ -132,16 +136,21 @@ class Match
         board
     end
 
-    def change_symbol(playerChoice, boardarray, symbol)
-        boardarray.each do |sub_array|
-            sub_array.each do |item|
-                if playerChoice == item.number
-                    item.number = symbol
-                    playerChoice = item
+    def change_symbol(playerChoice, boardarray, symbol, valid_input)
+        if playerChoice.to_i.between?(1,9) == false
+            puts "You entered a wrong value, please try again"
+        else
+            boardarray.each do |sub_array|
+                sub_array.each do |item|
+                    if playerChoice == item.number
+                        item.number = symbol
+                        playerChoice = item
+                        valid_input = true
+                    end
                 end
             end
         end
-        playerChoice
+        return valid_input, playerChoice
     end
 
 
